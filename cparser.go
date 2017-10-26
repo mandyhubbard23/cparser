@@ -27,9 +27,9 @@ func main() {
 	}
 
 	target := getCoverageTarget(coverageFile)
-	err := getCoverage(file, target)
+	err, failed := getCoverage(file, target)
 
-	if err != nil {
+	if failed {
 
 		fmt.Println(err)
 		for k,v := range err {
@@ -63,7 +63,7 @@ func getCoverageTarget(file string) float64 {
 	return target
 }
 
-func getCoverage(file string, target float64) map[string]string {
+func getCoverage(file string, target float64) (map[string]string, bool) {
 
 	var (
 		cmdOut  []byte
@@ -72,8 +72,8 @@ func getCoverage(file string, target float64) map[string]string {
 		match   []string
 	)
 
-	//errorMap := make(map[string]string)
-	var errorMap map[string]string
+	errorMap := make(map[string]string)
+	failed := false
 
 	cmd := "cat " + file + "| pup [id=files] option text{}"
 
@@ -98,7 +98,7 @@ func getCoverage(file string, target float64) map[string]string {
 			errorMap[match[1]] = fmt.Sprintf("Target Code Coverage=%f, Actual Code Coverage=%f", target, percent)
 		}
 	}
-	return errorMap
+	return errorMap, failed
 }
 
 func readLines(path string) ([]string, error) {
