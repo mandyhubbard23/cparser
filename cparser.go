@@ -36,7 +36,7 @@ func main() {
 
 			fmt.Fprintln(os.Stderr, k, v)
 		}
-		fmt.Fprintln(os.Stderr, "Exiting because error map was not nil: ", err)
+		fmt.Fprintln(os.Stderr, "Exiting because coverage was below target: ", err)
 		os.Exit(1)
 	}
 
