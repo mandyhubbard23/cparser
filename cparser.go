@@ -37,6 +37,8 @@ func main() {
 		}
 		os.Exit(1)
 	}
+
+	os.Exit(0)
 }
 
 func getCoverageTarget(file string) float64 {
