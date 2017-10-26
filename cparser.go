@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"bufio"
-	"log"
 	"strconv"
 	"os/exec"
 	"strings"
@@ -31,13 +30,17 @@ func main() {
 	err := getCoverage(file, target)
 
 	if err != nil {
+
+		fmt.Println(err)
 		for k,v := range err {
 
-			log.Fatal(k, v)
+			fmt.Fprintln(os.Stderr, k, v)
 		}
+		fmt.Fprintln(os.Stderr, "Exiting because error map was not nil: ", err)
 		os.Exit(1)
 	}
 
+	fmt.Fprintln(os.Stdout, "Success")
 	os.Exit(0)
 }
 
@@ -45,17 +48,16 @@ func getCoverageTarget(file string) float64 {
 
 	lines, err := readLines(file)
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Error in readLines: %s", err))
+		fmt.Fprintln(os.Stderr, "Error in readLines:", err)
 	}
 
 	if len(lines) == 0 || len(lines)> 1 {
-		log.Fatal("The coverage target file should contain only one line.")
+		fmt.Fprintln(os.Stderr, "The coverage target file should contain only one line.")
 	}
 
 	target, err := strconv.ParseFloat(lines[0], 64)
 	if err != nil {
-
-		log.Fatal(fmt.Sprintf("Could not convert coverage target - %s - to a Float", err))
+		fmt.Fprintln(os.Stderr, "Could not convert coverage target - %s - to a Float", err)
 	}
 
 	return target
@@ -70,7 +72,9 @@ func getCoverage(file string, target float64) map[string]string {
 		match   []string
 	)
 
-	errorMap := make(map[string]string)
+	//errorMap := make(map[string]string)
+	var errorMap map[string]string
+
 	cmd := "cat " + file + "| pup [id=files] option text{}"
 
 	if cmdOut, err = exec.Command("bash", "-c", cmd).Output(); err != nil {
@@ -87,7 +91,7 @@ func getCoverage(file string, target float64) map[string]string {
 			continue
 		}
 		if percent, err = strconv.ParseFloat(strings.Replace(string(match[2]), "%", "", 1), 64); err != nil {
-			panic(err)
+			fmt.Fprintln(os.Stderr, "Error parsing target percent into float: ", err)
 		}
 		if percent < target {
 
