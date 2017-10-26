@@ -96,6 +96,7 @@ func getCoverage(file string, target float64) (map[string]string, bool) {
 		if percent < target {
 
 			errorMap[match[1]] = fmt.Sprintf("Target Code Coverage=%f, Actual Code Coverage=%f", target, percent)
+			failed = true
 		}
 	}
 	return errorMap, failed
